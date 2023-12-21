@@ -5,77 +5,84 @@ const password = document.getElementById('password');
 const password2 = document.getElementById('password2');
 
 function showError(input, message) {
-    // console.log(input.value);
-    const formControl = input.parentElement;
-    formControl.className = 'form-control error';
-    const small = formControl.querySelector('small');
-    small.innerHTML = message;
+  const formControl = input.parentElement;
+  formControl.className = 'form-control error';
+  const small = formControl.querySelector('small');
+  small.innerText = message;
 }
 
+// Show success outline
 function showSuccess(input) {
-    console.log(input.value);
-    const formControl = input.parentElement;
-    formControl.className = 'form-control success';
+  const formControl = input.parentElement;
+  formControl.className = 'form-control success';
 }
 
-function checkRequired(inputArray) {
-    let isRequired = false;
-    // console.log(inputArray);
-
-    inputArray.forEach((input) => {
-        // console.log(input.value);
-        if (input.value.trim() === '') {
-            showError(input, `${displayValue(input)} is required`);
-            isRequired = true;
-        } else {
-            showSuccess(input);
-        }
-    });
-    return isRequired;
+// Check email is valid
+function checkEmail(input) {
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (re.test(input.value.trim())) {
+    showSuccess(input);
+  } else {
+    showError(input, 'Email is not valid');
+  }
 }
 
-function displayValue(input) {
-    return input.id.charAt(0).toUpperCase() + input.id.slice(1);
+// Check required fields
+function checkRequired(inputArr) {
+  let isRequired = false;
+  inputArr.forEach(function(input) {
+    if (input.value.trim() === '') {
+      showError(input, `${getFieldName(input)} is required`);
+      isRequired = true;
+    } else {
+      isRequired = true;
+    }
+  });
+  return isRequired;
 }
 
+// Check input length
 function checkLength(input, min, max) {
-    console.log(input.value.length);
-    if (input.value.length < min) {
-        showError(input, `${displayValue(input)} must be at least ${min} characters`)
-    } else if (input.value.length > max) {
-        showError(input, `${displayValue(input)} must be less than ${max} characters`)
-    } else {
-        showSuccess(input);
-    }
+  if (input.value.length < min) {
+    showError(
+      input,
+      `${getFieldName(input)} must be at least ${min} characters`
+    );
+  } else if (input.value.length > max) {
+    showError(
+      input,
+      `${getFieldName(input)} must be less than ${max} characters`
+    );
+  } else {
+    showSuccess(input);
+  }
 }
 
-function checkEmail(email) {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    console.log(re.test(email.value.trim()))
-    if (re.test(email.value.trim())) {
-        showSuccess(email);
-    } else {
-        showError(email, 'Email is not valid');
-    }
+// Check passwords match
+function checkPasswordsMatch(input1, input2) {
+  if (input1.value !== input2.value) {
+    showError(input2, 'Passwords do not match');
+  } else {
+    if (input1.value !== "" && input2.value !== "") {
+    showSuccess(input2);
+  } 
+  }
 }
 
-function checkPasswords(pass1, pass2) {
-    if (pass1 !== pass2) {
-        showError(pass2, 'Passwords must match');
-    } else {
-        showSuccess(pass2);
-    }
+// Get fieldname
+function getFieldName(input) {
+  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
 }
 
-// event listeners
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    // checkRequired([username, email, password, password2]);
+// Event listeners
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
 
-    if(checkRequired([username, email, password, password2])) {
-        checkLength(username, 3, 15);
-        checkLength(password, 6, 25);
-        checkEmail(email);
-        checkPasswords(password, password2);
-    }
-})
+  if(checkRequired([username, email, password, password2])){
+    checkLength(username, 3, 15);
+    checkLength(password, 6, 25);
+    checkEmail(email);
+    checkPasswordsMatch(password, password2);
+  }
+
+});
